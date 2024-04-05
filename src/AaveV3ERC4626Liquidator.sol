@@ -52,11 +52,11 @@ contract AaveV3ERC4626Liquidator is ILiquidationSource {
         yieldVault = _yieldVault;
     }
 
-    function addPair(address tokenOut) external {
+    function addPair(address tokenOut) external returns (TpdaLiquidationPair) {
         if (address(liquidationPairs[tokenOut]) != address(0)) {
             revert("Already initialized");
         }
-        liquidationPairs[tokenOut] = liquidationPairFactory.createPair(
+        TpdaLiquidationPair pair = liquidationPairFactory.createPair(
             this,
             address(prizePool.prizeToken()),
             tokenOut,
@@ -64,6 +64,8 @@ contract AaveV3ERC4626Liquidator is ILiquidationSource {
             targetAuctionPrice,
             smoothingFactor
         );
+        liquidationPairs[tokenOut] = pair;
+        return pair;
     }
 
     /**
