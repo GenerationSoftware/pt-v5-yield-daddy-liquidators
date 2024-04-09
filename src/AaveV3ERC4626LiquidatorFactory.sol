@@ -4,7 +4,7 @@ pragma solidity ^0.8.24;
 import { AaveV3ERC4626Liquidator, IPrizePool, TpdaLiquidationPairFactory } from "./AaveV3ERC4626Liquidator.sol";
 
 /// @title  PoolTogether V5 Aave V3 ERC4626 Yield Daddy Liquidator Factory
-/// @author PoolTogether Inc. & G9 Software Inc.
+/// @author G9 Software Inc.
 /// @notice Factory contract for deploying new Aave V3 liquidators
 contract AaveV3ERC4626LiquidatorFactory {
 
