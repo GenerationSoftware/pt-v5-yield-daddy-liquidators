@@ -73,7 +73,7 @@ contract AaveV3ERC4626LiquidatorForkTest is Test {
         deal(address(USDC), address(this), 1e18);
         deal(address(weth), address(this), 1e30);
 
-        pair = liquidator.addPair(OP);
+        pair = liquidator.initializeRewardToken(OP);
         vm.warp(block.timestamp + 1 days);
     }
 

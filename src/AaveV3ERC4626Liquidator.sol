@@ -12,7 +12,38 @@ import { SafeERC20 } from "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 
 import { IPrizePool } from "./external/interfaces/IPrizePool.sol";
 
+/// @notice Thrown when a function is called by an account that isn't the creator
+error OnlyCreator();
+
+/// @notice Thrown when the yield vault has already been set
+error YieldVaultAlreadySet();
+
+/// @notice Thrown when the yield vault reward recipient is not the liquidator
+error InvalidRewardRecipient();
+
+/// @notice Thrown when a reward token has already been initialized
+error AlreadyInitialized();
+
+/// @notice Thrown when an account that isn't a valid liquidation pair calls the contract
+error OnlyLiquidationPair();
+
+/// @notice Emitted when a token is queried that isn't known
+error UnknownRewardToken();
+
+/// @notice Emitted when trying to initialize a token with the zero address
+error CannotInitializeZeroAddress();
+
 contract AaveV3ERC4626Liquidator is ILiquidationSource {
+
+    /// @notice Emitted when the yield vault has been set by the creator
+    /// @param yieldVault The address of the yield vault
+    event YieldVaultSet(AaveV3ERC4626 indexed yieldVault);
+
+    /// @notice Emitted when the reward token has been initialized
+    /// @param token The address of the reward token
+    /// @param pair The address of the liquidation pair
+    event InitializedRewardToken(address indexed token, TpdaLiquidationPair indexed pair);
+
     using SafeERC20 for IERC20;
 
     address public immutable creator;
@@ -46,15 +77,26 @@ contract AaveV3ERC4626Liquidator is ILiquidationSource {
     }
 
     function setYieldVault(AaveV3ERC4626 _yieldVault) external {
-        require(msg.sender == creator, "AaveV3ERC4626Liquidator: FORBIDDEN");
-        require(address(yieldVault) == address(0), "AaveV3ERC4626Liquidator: ALREADY_SET");
-        require(_yieldVault.rewardRecipient() == address(this), "Not reward recipient");
+        if (msg.sender != creator) {
+            revert OnlyCreator();
+        }
+        if (address(yieldVault) != address(0)) {
+            revert YieldVaultAlreadySet();
+        }
+        if (_yieldVault.rewardRecipient() != address(this)) {
+            revert InvalidRewardRecipient();
+        }
         yieldVault = _yieldVault;
+
+        emit YieldVaultSet(_yieldVault);
     }
 
-    function addPair(address tokenOut) external returns (TpdaLiquidationPair) {
+    function initializeRewardToken(address tokenOut) external returns (TpdaLiquidationPair) {
+        if (tokenOut == address(0)) {
+            revert CannotInitializeZeroAddress();
+        }
         if (address(liquidationPairs[tokenOut]) != address(0)) {
-            revert("Already initialized");
+            revert AlreadyInitialized();
         }
         TpdaLiquidationPair pair = liquidationPairFactory.createPair(
             this,
@@ -65,6 +107,9 @@ contract AaveV3ERC4626Liquidator is ILiquidationSource {
             smoothingFactor
         );
         liquidationPairs[tokenOut] = pair;
+
+        emit InitializedRewardToken(tokenOut, pair);
+
         return pair;
     }
 
@@ -85,7 +130,9 @@ contract AaveV3ERC4626Liquidator is ILiquidationSource {
         address tokenOut,
         uint256 amountOut
     ) external returns (bytes memory) {
-        require(msg.sender == address(liquidationPairs[tokenOut]), "AaveV3ERC4626Liquidator: FORBIDDEN");
+        if (msg.sender != address(liquidationPairs[tokenOut])) {
+            revert OnlyLiquidationPair();
+        }
         IERC20(tokenOut).safeTransfer(receiver, amountOut);
     }
 
@@ -99,12 +146,16 @@ contract AaveV3ERC4626Liquidator is ILiquidationSource {
     }
 
     /// @inheritdoc ILiquidationSource
-    function targetOf(address tokenIn) external returns (address) {
+    function targetOf(address) external returns (address) {
         return address(prizePool);
     }
 
     /// @inheritdoc ILiquidationSource
     function isLiquidationPair(address tokenOut, address liquidationPair) external returns (bool) {
-        return address(liquidationPairs[tokenOut]) == liquidationPair;
+        address existingPair = address(liquidationPairs[tokenOut]);
+        if (existingPair == address(0)) {
+            revert UnknownRewardToken();
+        }
+        return existingPair == liquidationPair;
     }
 }
