@@ -19,5 +19,7 @@ contract PrizePoolStub is IPrizePool {
         require(extra >= _amount, "PrizePoolStub: Not enough tokens");
         totalContributed += _amount;
         contributions[_prizeVault] += _amount;
+
+        return _amount;
     }
 }
