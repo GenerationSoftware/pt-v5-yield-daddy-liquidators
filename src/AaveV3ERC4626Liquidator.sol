@@ -33,6 +33,9 @@ error UnknownRewardToken();
 /// @notice Thrown when trying to initialize a token with the zero address
 error CannotInitializeZeroAddress();
 
+/// @title Aave V3 ERC4626 Liquidator
+/// @author G9 Software Inc.
+/// @notice Liquidates rewards from a Yield Daddy Aave V3 4626 vault.
 contract AaveV3ERC4626Liquidator is ILiquidationSource {
     using SafeERC20 for IERC20;
 
