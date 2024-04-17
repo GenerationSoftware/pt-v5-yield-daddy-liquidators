@@ -61,7 +61,7 @@ contract AaveV3ERC4626Liquidator is ILiquidationSource {
     TpdaLiquidationPairFactory public immutable liquidationPairFactory;
 
     /// @notice The target auction period for liquidation pairs
-    uint256 public immutable targetAuctionPeriod;
+    uint64 public immutable targetAuctionPeriod;
 
     /// @notice The target auction price for liquidation pairs
     uint192 public immutable targetAuctionPrice;
@@ -88,7 +88,7 @@ contract AaveV3ERC4626Liquidator is ILiquidationSource {
         address _vaultBeneficiary,
         IPrizePool _prizePool,
         TpdaLiquidationPairFactory _liquidationPairFactory,
-        uint256 _targetAuctionPeriod,
+        uint64 _targetAuctionPeriod,
         uint192 _targetAuctionPrice,
         uint256 _smoothingFactor
     ) {

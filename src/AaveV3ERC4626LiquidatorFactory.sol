@@ -46,7 +46,7 @@ contract AaveV3ERC4626LiquidatorFactory {
         address _vaultBeneficiary,
         IPrizePool _prizePool,
         TpdaLiquidationPairFactory _liquidationPairFactory,
-        uint256 _targetAuctionPeriod,
+        uint64 _targetAuctionPeriod,
         uint192 _targetAuctionPrice,
         uint256 _smoothingFactor
     ) external returns (AaveV3ERC4626Liquidator) {

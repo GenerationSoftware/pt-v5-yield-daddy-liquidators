@@ -30,7 +30,7 @@ contract AaveV3ERC4626LiquidatorTest is Test {
     IPrizePool prizePool = IPrizePool(makeAddr("prizePool"));
     IERC20 prizeToken = IERC20(makeAddr("prizeToken"));
     TpdaLiquidationPairFactory liquidationPairFactory = TpdaLiquidationPairFactory(makeAddr("liquidationPairFactory"));
-    uint256 targetAuctionPeriod = 1 days;
+    uint64 targetAuctionPeriod = 1 days;
     uint192 targetAuctionPrice = 0.001 ether;
     uint256 smoothingFactor = 0.9 ether;
     AaveV3ERC4626 yieldVault = AaveV3ERC4626(makeAddr("AaveV3ERC4626"));

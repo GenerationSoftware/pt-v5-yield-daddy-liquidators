@@ -21,7 +21,7 @@ contract AaveV3ERC4626LiquidatorFactoryTest is Test {
     address vaultBeneficiary = makeAddr("vaultBeneficiary");
     IPrizePool prizePool = IPrizePool(makeAddr("prizePool"));
     TpdaLiquidationPairFactory liquidationPairFactory = TpdaLiquidationPairFactory(makeAddr("liquidationPairFactory"));
-    uint256 targetAuctionPeriod = 1 days;
+    uint64 targetAuctionPeriod = 1 days;
     uint192 targetAuctionPrice = 0.001 ether;
     uint256 smoothingFactor = 0.9 ether;
     address rewardToken = makeAddr("rewardToken");
