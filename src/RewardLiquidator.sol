@@ -1,7 +1,6 @@
 /// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import { AaveV3ERC4626 } from "yield-daddy/aave-v3/AaveV3ERC4626.sol";
 import {
     TpdaLiquidationPairFactory,
     ILiquidationSource
@@ -10,6 +9,7 @@ import { TpdaLiquidationPair } from "pt-v5-tpda-liquidator/TpdaLiquidationPair.s
 import { IERC20 } from "openzeppelin/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 
+import { IRewardSource } from "./external/interfaces/IRewardSource.sol";
 import { IPrizePool } from "./external/interfaces/IPrizePool.sol";
 
 /// @notice Thrown when a function is called by an account that isn't the creator
@@ -33,15 +33,15 @@ error UnknownRewardToken();
 /// @notice Thrown when trying to initialize a token with the zero address
 error CannotInitializeZeroAddress();
 
-/// @title Aave V3 ERC4626 Liquidator
+/// @title Reward Liquidator
 /// @author G9 Software Inc.
-/// @notice Liquidates rewards from a Yield Daddy Aave V3 4626 vault.
-contract AaveV3ERC4626Liquidator is ILiquidationSource {
+/// @notice Liquidates rewards from a reward source.
+contract RewardLiquidator is ILiquidationSource {
     using SafeERC20 for IERC20;
 
     /// @notice Emitted when the yield vault has been set by the creator
     /// @param yieldVault The address of the yield vault
-    event YieldVaultSet(AaveV3ERC4626 indexed yieldVault);
+    event YieldVaultSet(IRewardSource indexed yieldVault);
 
     /// @notice Emitted when the reward token has been initialized
     /// @param token The address of the reward token
@@ -70,12 +70,12 @@ contract AaveV3ERC4626Liquidator is ILiquidationSource {
     uint256 public immutable smoothingFactor;
 
     /// @notice The yield vault from which this contract receives rewards
-    AaveV3ERC4626 public yieldVault;
+    IRewardSource public yieldVault;
 
     /// @notice A mapping from reward tokens to liquidation pairs
     mapping(address tokenOut => TpdaLiquidationPair liquidationPair) public liquidationPairs;
 
-    /// @notice Construct a new AaveV3ERC4626Liquidator
+    /// @notice Construct a new RewardLiquidator
     /// @param _creator The account that will set the yield vault
     /// @param _vaultBeneficiary The vault on whose behalf this contract will contribute to the prize pool
     /// @param _prizePool The prize pool to contribute liquidation proceeds to
@@ -103,7 +103,7 @@ contract AaveV3ERC4626Liquidator is ILiquidationSource {
 
     /// @notice Set the yield vault to receive rewards from
     /// @param _yieldVault The yield vault to set
-    function setYieldVault(AaveV3ERC4626 _yieldVault) external {
+    function setYieldVault(IRewardSource _yieldVault) external {
         if (msg.sender != creator) {
             revert OnlyCreator();
         }

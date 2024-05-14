@@ -4,19 +4,19 @@ pragma solidity ^0.8.24;
 import { Test } from "forge-std/Test.sol";
 
 import {
-    AaveV3ERC4626LiquidatorFactory,
-    AaveV3ERC4626Liquidator,
+    RewardLiquidatorFactory,
+    RewardLiquidator,
     IPrizePool,
     TpdaLiquidationPairFactory
-} from "../src/AaveV3ERC4626LiquidatorFactory.sol";
+} from "../src/RewardLiquidatorFactory.sol";
 
-contract AaveV3ERC4626LiquidatorFactoryTest is Test {
+contract RewardLiquidatorFactoryTest is Test {
 
-    event NewAaveV3ERC4626Liquidator(
-        AaveV3ERC4626Liquidator indexed liquidator
+    event NewRewardLiquidator(
+        RewardLiquidator indexed liquidator
     );
 
-    AaveV3ERC4626LiquidatorFactory factory;
+    RewardLiquidatorFactory factory;
 
     address vaultBeneficiary = makeAddr("vaultBeneficiary");
     IPrizePool prizePool = IPrizePool(makeAddr("prizePool"));
@@ -28,14 +28,14 @@ contract AaveV3ERC4626LiquidatorFactoryTest is Test {
     address prizeToken = makeAddr("prizeToken");
 
     function setUp() public {
-        factory = new AaveV3ERC4626LiquidatorFactory();
+        factory = new RewardLiquidatorFactory();
         vm.mockCall(address(prizePool), abi.encodeWithSelector(prizePool.prizeToken.selector), abi.encode(address(prizeToken)));
     }
 
     function test_createLiquidator() public {
         vm.expectEmit(false, false, false, false);
-        emit NewAaveV3ERC4626Liquidator(AaveV3ERC4626Liquidator(address(0)));
-        AaveV3ERC4626Liquidator liquidator = factory.createLiquidator(
+        emit NewRewardLiquidator(RewardLiquidator(address(0)));
+        RewardLiquidator liquidator = factory.createLiquidator(
             address(this),
             vaultBeneficiary,
             prizePool,
