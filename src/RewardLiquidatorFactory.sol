@@ -1,25 +1,25 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import { AaveV3ERC4626Liquidator, IPrizePool, TpdaLiquidationPairFactory } from "./AaveV3ERC4626Liquidator.sol";
+import { RewardLiquidator, IPrizePool, TpdaLiquidationPairFactory } from "./RewardLiquidator.sol";
 
-/// @title  PoolTogether V5 Aave V3 ERC4626 Yield Daddy Liquidator Factory
+/// @title  PoolTogether V5 Reward Liquidator Factory
 /// @author G9 Software Inc.
-/// @notice Factory contract for deploying new Aave V3 liquidators
-contract AaveV3ERC4626LiquidatorFactory {
+/// @notice Factory contract for deploying new reward liquidators
+contract RewardLiquidatorFactory {
 
     ////////////////////////////////////////////////////////////////////////////////
     // Events
     ////////////////////////////////////////////////////////////////////////////////
 
-    /// @notice Emitted when a new AaveV3ERC4626Liquidator has been deployed by this factory.
-    /// @param liquidator The address of the newly deployed AaveV3ERC4626Liquidator
-    event NewAaveV3ERC4626Liquidator(
-        AaveV3ERC4626Liquidator indexed liquidator
+    /// @notice Emitted when a new RewardLiquidator has been deployed by this factory.
+    /// @param liquidator The address of the newly deployed RewardLiquidator
+    event NewRewardLiquidator(
+        RewardLiquidator indexed liquidator
     );
 
     /// @notice List of all liquidators deployed by this factory.
-    AaveV3ERC4626Liquidator[] public allLiquidators;
+    RewardLiquidator[] public allLiquidators;
 
     /// @notice Mapping to verify if a Liquidator has been deployed via this factory.
     mapping(address liquidator => bool deployedByFactory) public deployedLiquidators;
@@ -32,7 +32,7 @@ contract AaveV3ERC4626LiquidatorFactory {
     ////////////////////////////////////////////////////////////////////////////////
 
     /// @notice Deploy a new liquidator that contributes liquidations to a prize pool on behalf of a vault.
-    /// @dev Emits a `NewAaveV3ERC4626Liquidator` event with the vault details.
+    /// @dev Emits a `NewRewardLiquidator` event with the vault details.
     /// @param _creator The address of the creator of the vault
     /// @param _vaultBeneficiary The address of the vault beneficiary of the prize pool contributions
     /// @param _prizePool The prize pool the vault will contribute to
@@ -40,7 +40,7 @@ contract AaveV3ERC4626LiquidatorFactory {
     /// @param _targetAuctionPeriod The target auction period for liquidations
     /// @param _targetAuctionPrice The target auction price for liquidations
     /// @param _smoothingFactor The smoothing factor for liquidations
-    /// @return AaveV3ERC4626Liquidator The newly deployed AaveV3ERC4626Liquidator
+    /// @return RewardLiquidator The newly deployed RewardLiquidator
     function createLiquidator(
         address _creator,
         address _vaultBeneficiary,
@@ -49,8 +49,8 @@ contract AaveV3ERC4626LiquidatorFactory {
         uint64 _targetAuctionPeriod,
         uint192 _targetAuctionPrice,
         uint256 _smoothingFactor
-    ) external returns (AaveV3ERC4626Liquidator) {
-        AaveV3ERC4626Liquidator liquidator = new AaveV3ERC4626Liquidator{
+    ) external returns (RewardLiquidator) {
+        RewardLiquidator liquidator = new RewardLiquidator{
             salt: keccak256(abi.encode(msg.sender, deployerNonces[msg.sender]++))
         }(
             _creator,
@@ -65,7 +65,7 @@ contract AaveV3ERC4626LiquidatorFactory {
         allLiquidators.push(liquidator);
         deployedLiquidators[address(liquidator)] = true;
 
-        emit NewAaveV3ERC4626Liquidator(liquidator);
+        emit NewRewardLiquidator(liquidator);
 
         return liquidator;
     }

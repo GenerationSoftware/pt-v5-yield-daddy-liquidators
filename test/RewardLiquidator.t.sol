@@ -4,9 +4,9 @@ pragma solidity ^0.8.24;
 import { Test } from "forge-std/Test.sol";
 
 import {
-    AaveV3ERC4626Liquidator,
-    AaveV3ERC4626,
+    RewardLiquidator,
     IPrizePool,
+    IRewardSource,
     TpdaLiquidationPair,
     TpdaLiquidationPairFactory,
     OnlyCreator,
@@ -17,14 +17,14 @@ import {
     CannotInitializeZeroAddress,
     UnknownRewardToken,
     IERC20
-} from "../src/AaveV3ERC4626Liquidator.sol";
+} from "../src/RewardLiquidator.sol";
 
-contract AaveV3ERC4626LiquidatorTest is Test {
+contract RewardLiquidatorTest is Test {
 
-    event YieldVaultSet(AaveV3ERC4626 indexed yieldVault);
+    event YieldVaultSet(IRewardSource indexed yieldVault);
     event InitializedRewardToken(address indexed token, TpdaLiquidationPair indexed pair);
 
-    AaveV3ERC4626Liquidator liquidator;
+    RewardLiquidator liquidator;
 
     address vaultBeneficiary = makeAddr("vaultBeneficiary");
     IPrizePool prizePool = IPrizePool(makeAddr("prizePool"));
@@ -33,12 +33,12 @@ contract AaveV3ERC4626LiquidatorTest is Test {
     uint64 targetAuctionPeriod = 1 days;
     uint192 targetAuctionPrice = 0.001 ether;
     uint256 smoothingFactor = 0.9 ether;
-    AaveV3ERC4626 yieldVault = AaveV3ERC4626(makeAddr("AaveV3ERC4626"));
+    IRewardSource yieldVault = IRewardSource(makeAddr("IRewardSource"));
     address rewardToken = makeAddr("rewardToken");
 
     function setUp() public {
         vm.mockCall(address(prizePool), abi.encodeWithSelector(prizePool.prizeToken.selector), abi.encode(address(prizeToken)));
-        liquidator = new AaveV3ERC4626Liquidator(
+        liquidator = new RewardLiquidator(
             address(this),
             vaultBeneficiary,
             prizePool,
@@ -67,7 +67,7 @@ contract AaveV3ERC4626LiquidatorTest is Test {
     function test_setYieldVault_OnlyCreator() public {
         vm.expectRevert(abi.encodeWithSelector(OnlyCreator.selector));
         vm.prank(makeAddr("fraud"));
-        liquidator.setYieldVault(AaveV3ERC4626(makeAddr("AaveV3ERC4626")));
+        liquidator.setYieldVault(IRewardSource(makeAddr("IRewardSource")));
     }
 
     function test_setYieldVault_YieldVaultAlreadySet() public {

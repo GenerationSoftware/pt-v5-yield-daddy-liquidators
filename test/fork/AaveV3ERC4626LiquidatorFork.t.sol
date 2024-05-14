@@ -7,18 +7,19 @@ import { TpdaLiquidationPairFactory } from "pt-v5-tpda-liquidator/TpdaLiquidatio
 import {
     ERC20,
     IPool,
-    IRewardsController
+    IRewardsController,
+    AaveV3ERC4626
 } from "yield-daddy/aave-v3/AaveV3ERC4626.sol";
 
-import { AaveV3ERC4626, AaveV3ERC4626Liquidator, TpdaLiquidationPair } from "../../src/AaveV3ERC4626Liquidator.sol";
+import { RewardLiquidator, TpdaLiquidationPair, IRewardSource } from "../../src/RewardLiquidator.sol";
 import { IERC20, PrizePoolStub } from "../stub/PrizePoolStub.sol";
 
 interface IRewardsControllerExt {
     function getRewardsByAsset(address _asset) external view returns (address[] memory);
 }
 
-contract AaveV3ERC4626LiquidatorForkTest is Test {
-    AaveV3ERC4626Liquidator public liquidator;
+contract AaveV3ERC4626RewardLiquidatorForkTest is Test {
+    RewardLiquidator public liquidator;
     IERC20 public immutable weth = IERC20(0x4200000000000000000000000000000000000006);
     address vault = makeAddr("vault");
     TpdaLiquidationPairFactory factory;
@@ -49,7 +50,7 @@ contract AaveV3ERC4626LiquidatorForkTest is Test {
         prizePool = new PrizePoolStub(weth);
         factory = new TpdaLiquidationPairFactory();
         console2.log("created factory");
-        liquidator = new AaveV3ERC4626Liquidator(
+        liquidator = new RewardLiquidator(
             address(this),
             vault,
             prizePool,
@@ -67,7 +68,7 @@ contract AaveV3ERC4626LiquidatorForkTest is Test {
             REWARDS_CONTROLLER
         );
         console2.log("created yieldVault");
-        liquidator.setYieldVault(yieldVault);
+        liquidator.setYieldVault(IRewardSource(address(yieldVault)));
 
         deal(address(USDC), msg.sender, 1e18);
         deal(address(USDC), address(this), 1e18);
